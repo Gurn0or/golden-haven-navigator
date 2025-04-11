@@ -13,6 +13,7 @@ import PricingRules from "./pages/PricingRules";
 import TransactionHistory from "./pages/TransactionHistory";
 import GoldVaults from "./pages/GoldVaults";
 import TokenSupply from "./pages/TokenSupply";
+import Redemptions from "./pages/Redemptions";
 import NotFound from "./pages/NotFound";
 
 // Create a client outside of the component to avoid recreation on each render
@@ -39,7 +40,7 @@ const App = () => {
               <Route path="/wallets" element={<Layout><Wallets /></Layout>} />
               <Route path="/token-supply" element={<Layout><TokenSupply /></Layout>} />
               <Route path="/transactions" element={<Layout><TransactionHistory /></Layout>} />
-              <Route path="/redemptions" element={<Layout><div className="p-8">Redemptions Page (Coming Soon)</div></Layout>} />
+              <Route path="/redemptions" element={<Layout><Redemptions /></Layout>} />
               <Route path="/vaults" element={<Layout><GoldVaults /></Layout>} />
               <Route path="/pricing" element={<Layout><PricingRules /></Layout>} />
               <Route path="/settings" element={<Layout><div className="p-8">Settings Page (Coming Soon)</div></Layout>} />

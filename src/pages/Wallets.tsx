@@ -238,8 +238,8 @@ const Wallets = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Balances</SelectItem>
-            <SelectItem value="high">High Balance (>500 EAU)</SelectItem>
-            <SelectItem value="low">Low Balance (<10 EAU)</SelectItem>
+            <SelectItem value="high">High Balance (&gt;500 EAU)</SelectItem>
+            <SelectItem value="low">Low Balance (&lt;10 EAU)</SelectItem>
           </SelectContent>
         </Select>
         

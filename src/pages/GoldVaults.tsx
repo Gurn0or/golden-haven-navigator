@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Plus,
@@ -21,7 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,

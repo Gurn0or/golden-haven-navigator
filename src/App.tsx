@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
+import PricingRules from "./pages/PricingRules";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,7 @@ const App = () => (
           <Route path="/transactions" element={<Layout><div className="p-8">Transactions Page (Coming Soon)</div></Layout>} />
           <Route path="/redemptions" element={<Layout><div className="p-8">Redemptions Page (Coming Soon)</div></Layout>} />
           <Route path="/vaults" element={<Layout><div className="p-8">Gold Vaults Page (Coming Soon)</div></Layout>} />
-          <Route path="/pricing" element={<Layout><div className="p-8">Pricing Rules Page (Coming Soon)</div></Layout>} />
+          <Route path="/pricing" element={<Layout><PricingRules /></Layout>} />
           <Route path="/settings" element={<Layout><div className="p-8">Settings Page (Coming Soon)</div></Layout>} />
           <Route path="/reports" element={<Layout><div className="p-8">Reports Page (Coming Soon)</div></Layout>} />
           <Route path="/support" element={<Layout><div className="p-8">Support Tickets Page (Coming Soon)</div></Layout>} />

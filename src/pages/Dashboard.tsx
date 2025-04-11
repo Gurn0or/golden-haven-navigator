@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, PieChart, AreaChart } from '@/components/ui/chart';
+import { BarChart, LineChart, PieChart, AreaChart } from '@/components/ui/charts';
 import { Users, Wallet, Coins, Building, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 

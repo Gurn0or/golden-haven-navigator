@@ -16,6 +16,7 @@ import TokenSupply from "./pages/TokenSupply";
 import Redemptions from "./pages/Redemptions";
 import Support from "./pages/Support";
 import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 // Create a client outside of the component to avoid recreation on each render
@@ -47,6 +48,7 @@ const App = () => {
               <Route path="/pricing" element={<Layout><PricingRules /></Layout>} />
               <Route path="/support" element={<Layout><Support /></Layout>} />
               <Route path="/settings" element={<Layout><Settings /></Layout>} />
+              <Route path="/reports" element={<Layout><Reports /></Layout>} />
               <Route path="/reports" element={<Layout><div className="p-8">Reports Page (Coming Soon)</div></Layout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>

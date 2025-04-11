@@ -17,6 +17,9 @@ import Redemptions from "./pages/Redemptions";
 import Support from "./pages/Support";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import DeliveryRequests from "./pages/DeliveryRequests";
+import PickupRequests from "./pages/PickupRequests";
+import VendorManagement from "./pages/VendorManagement";
 import NotFound from "./pages/NotFound";
 
 // Create a client outside of the component to avoid recreation on each render
@@ -49,7 +52,9 @@ const App = () => {
               <Route path="/support" element={<Layout><Support /></Layout>} />
               <Route path="/settings" element={<Layout><Settings /></Layout>} />
               <Route path="/reports" element={<Layout><Reports /></Layout>} />
-              <Route path="/reports" element={<Layout><div className="p-8">Reports Page (Coming Soon)</div></Layout>} />
+              <Route path="/delivery-requests" element={<Layout><DeliveryRequests /></Layout>} />
+              <Route path="/pickup-requests" element={<Layout><PickupRequests /></Layout>} />
+              <Route path="/vendor-management" element={<Layout><VendorManagement /></Layout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

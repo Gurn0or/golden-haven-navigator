@@ -22,6 +22,9 @@ import {
   Settings,
   FileText,
   LifeBuoy,
+  Truck,
+  Store,
+  Calendar
 } from "lucide-react";
 
 interface SidebarItemType {
@@ -61,6 +64,27 @@ const navItems: SidebarItemType[] = [
     path: "/redemptions",
     icon: Package,
   },
+];
+
+const fulfillmentItems: SidebarItemType[] = [
+  {
+    title: "Delivery Requests",
+    path: "/delivery-requests",
+    icon: Truck,
+  },
+  {
+    title: "Pickup Requests",
+    path: "/pickup-requests",
+    icon: Calendar,
+  },
+  {
+    title: "Vendor Management",
+    path: "/vendor-management",
+    icon: Store,
+  },
+];
+
+const systemItems: SidebarItemType[] = [
   {
     title: "Gold Vaults",
     path: "/vaults",
@@ -72,14 +96,14 @@ const navItems: SidebarItemType[] = [
     icon: BarChart3,
   },
   {
-    title: "Settings",
-    path: "/settings",
-    icon: Settings,
-  },
-  {
     title: "Reports",
     path: "/reports",
     icon: FileText,
+  },
+  {
+    title: "Settings",
+    path: "/settings",
+    icon: Settings,
   },
   {
     title: "Support Tickets",
@@ -99,10 +123,56 @@ const AppSidebar = () => {
           </div>
         </div>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.path}
+                      className={({ isActive }) => 
+                        isActive ? "text-gold font-medium" : ""
+                      }
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Fulfillment</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {fulfillmentItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.path}
+                      className={({ isActive }) => 
+                        isActive ? "text-gold font-medium" : ""
+                      }
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 

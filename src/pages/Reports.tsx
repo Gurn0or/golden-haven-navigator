@@ -227,7 +227,7 @@ const Reports = () => {
               <SelectValue placeholder="Select report type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Reports</SelectItem>
+              <SelectItem value="all">All Reports</SelectItem>
               {reportTypes.map(report => (
                 <SelectItem key={report.id} value={report.id}>
                   {report.title}

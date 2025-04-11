@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
+import Wallets from "./pages/Wallets";
 import PricingRules from "./pages/PricingRules";
 import TransactionHistory from "./pages/TransactionHistory";
 import GoldVaults from "./pages/GoldVaults";
@@ -35,7 +36,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Layout><Dashboard /></Layout>} />
               <Route path="/users" element={<Layout><Users /></Layout>} />
-              <Route path="/wallets" element={<Layout><div className="p-8">Wallets Page (Coming Soon)</div></Layout>} />
+              <Route path="/wallets" element={<Layout><Wallets /></Layout>} />
               <Route path="/token-supply" element={<Layout><TokenSupply /></Layout>} />
               <Route path="/transactions" element={<Layout><TransactionHistory /></Layout>} />
               <Route path="/redemptions" element={<Layout><div className="p-8">Redemptions Page (Coming Soon)</div></Layout>} />

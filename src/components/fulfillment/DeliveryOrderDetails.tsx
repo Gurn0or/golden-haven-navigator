@@ -6,12 +6,13 @@ import {
   Wallet,
   Package,
   MapPin,
-  Truck,
+  Phone,
   CalendarClock,
+  Truck,
   ClipboardCheck,
   FileText,
   Send,
-  AlertTriangle
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,9 +77,9 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
   onClose
 }) => {
   const { toast } = useToast();
+  const [status, setStatus] = useState(order.status);
   const [deliveryPartner, setDeliveryPartner] = useState(order.deliveryPartner || "");
   const [awbNumber, setAwbNumber] = useState(order.awbNumber || "");
-  const [status, setStatus] = useState(order.status);
   const [notifyUser, setNotifyUser] = useState(true);
   const [note, setNote] = useState("");
   
@@ -121,12 +122,30 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
     setNote("");
   };
   
-  const handleMarkOutForDelivery = () => {
+  const handleOutForDelivery = () => {
+    if (!deliveryPartner) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a delivery partner",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!awbNumber) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter an AWB tracking number",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setStatus("Out for Delivery");
     const newLog = {
       timestamp: new Date().toLocaleString(),
       status: "Out for Delivery",
-      note: `Sent out for delivery with ${deliveryPartner}, AWB: ${awbNumber}`
+      note: note || `Shipped with ${deliveryPartner}, AWB: ${awbNumber}`
     };
     setLogs([...logs, newLog]);
     onUpdateStatus(order.id, "Out for Delivery");
@@ -134,7 +153,7 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
     if (notifyUser) {
       toast({
         title: "User Notified",
-        description: `Notification sent to user about order ${order.id}`,
+        description: `Notification sent to user about shipment of order ${order.id}`,
       });
     }
     
@@ -142,14 +161,16 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
       title: "Order Out for Delivery",
       description: `Order ${order.id} marked as Out for Delivery`,
     });
+    
+    setNote("");
   };
   
-  const handleMarkDelivered = () => {
+  const handleDeliver = () => {
     setStatus("Delivered");
     const newLog = {
       timestamp: new Date().toLocaleString(),
       status: "Delivered",
-      note: note || "Order successfully delivered"
+      note: note || "Package delivered to customer"
     };
     setLogs([...logs, newLog]);
     onUpdateStatus(order.id, "Delivered");
@@ -157,7 +178,7 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
     if (notifyUser) {
       toast({
         title: "User Notified",
-        description: `Notification sent to user about order ${order.id}`,
+        description: `Notification sent to user about delivery of order ${order.id}`,
       });
     }
     
@@ -197,8 +218,8 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
   
   const handleUploadInvoice = () => {
     toast({
-      title: "Invoice Uploaded",
-      description: `Invoice for order ${order.id} has been uploaded`,
+      title: "Upload Invoice",
+      description: "Invoice upload functionality would be implemented here",
     });
   };
 
@@ -257,7 +278,7 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
       <div>
         <h3 className="text-lg font-medium flex items-center mb-2">
           <Package className="h-5 w-5 mr-2" />
-          Order Details
+          Redemption Details
         </h3>
         <div className="grid grid-cols-2 gap-3 pl-7">
           <div>
@@ -307,34 +328,65 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Contact Number</p>
-              <p>{order.contactNumber}</p>
+              <div className="flex items-center">
+                <p>{order.contactNumber}</p>
+                <Button variant="ghost" size="icon" className="h-8 w-8" title="Copy number">
+                  <Phone className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
           
-          <div>
-            <p className="text-sm text-muted-foreground">Delivery Mode</p>
-            <Badge variant={order.deliveryMode === "Express" ? "secondary" : "outline"}>
-              {order.deliveryMode}
-            </Badge>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-sm text-muted-foreground">Delivery Mode</p>
+              <p>{order.deliveryMode}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Current Status</p>
+              <Badge variant="outline" className={
+                status === "App Approved" ? "bg-blue-50 text-blue-700" :
+                status === "Out for Delivery" ? "bg-yellow-50 text-yellow-700" :
+                status === "Delivered" ? "bg-green-50 text-green-700" :
+                "bg-red-50 text-red-700"
+              }>
+                {status}
+              </Badge>
+            </div>
           </div>
+          
+          {(order.deliveryPartner || deliveryPartner) && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-sm text-muted-foreground">Delivery Partner</p>
+                <p>{deliveryPartner || order.deliveryPartner}</p>
+              </div>
+              {(order.awbNumber || awbNumber) && (
+                <div>
+                  <p className="text-sm text-muted-foreground">AWB Number</p>
+                  <p>{awbNumber || order.awbNumber}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       
       <Separator />
       
-      {/* Fulfillment */}
+      {/* Admin Controls */}
       <div>
         <h3 className="text-lg font-medium flex items-center mb-4">
-          <Truck className="h-5 w-5 mr-2" />
-          Fulfillment
+          <ClipboardCheck className="h-5 w-5 mr-2" />
+          Admin Controls
         </h3>
         
         <div className="space-y-4 pl-7">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="delivery-partner">Delivery Partner</Label>
+              <Label htmlFor="deliveryPartner">Delivery Partner</Label>
               <Select value={deliveryPartner} onValueChange={setDeliveryPartner}>
-                <SelectTrigger id="delivery-partner">
+                <SelectTrigger id="deliveryPartner">
                   <SelectValue placeholder="Select partner" />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,18 +398,18 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="awb-number">AWB Number</Label>
-              <Input
-                id="awb-number"
-                value={awbNumber}
+              <Label htmlFor="awbNumber">AWB Tracking Number</Label>
+              <Input 
+                id="awbNumber" 
+                value={awbNumber} 
                 onChange={(e) => setAwbNumber(e.target.value)}
-                placeholder="Enter tracking number"
+                placeholder="Enter tracking number" 
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="status">Delivery Status</Label>
+            <Label htmlFor="status">Update Status</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
@@ -377,7 +429,7 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add notes about this order"
+              placeholder="Add notes about this delivery"
               className="min-h-[80px]"
             />
           </div>
@@ -401,17 +453,17 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
             
             <Button 
               variant="outline" 
-              onClick={handleMarkOutForDelivery}
-              disabled={!deliveryPartner || !awbNumber || status === "Out for Delivery" || status === "Delivered" || status === "Cancelled"}
+              onClick={handleOutForDelivery}
+              disabled={status === "Out for Delivery" || status === "Delivered" || status === "Cancelled"}
             >
               <Truck className="mr-2 h-4 w-4" />
-              Mark as Out for Delivery
+              Mark as Shipped
             </Button>
             
             <Button 
               variant="outline" 
-              onClick={handleMarkDelivered}
-              disabled={status === "Delivered" || status === "Cancelled"}
+              onClick={handleDeliver}
+              disabled={status === "App Approved" || status === "Delivered" || status === "Cancelled"}
             >
               <ClipboardCheck className="mr-2 h-4 w-4" />
               Mark as Delivered
@@ -429,9 +481,9 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="destructive"
-                  disabled={status === "Cancelled"}
+                  disabled={status === "Cancelled" || status === "Delivered"}
                 >
-                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  <X className="mr-2 h-4 w-4" />
                   Cancel Order
                 </Button>
               </AlertDialogTrigger>
@@ -439,7 +491,7 @@ export const DeliveryOrderDetails: React.FC<DeliveryOrderDetailsProps> = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will cancel the order and notify the customer.
+                    This action cannot be undone. This will cancel the delivery and notify the customer.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

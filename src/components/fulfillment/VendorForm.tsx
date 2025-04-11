@@ -1,15 +1,14 @@
 
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Store, 
-  MapPin, 
-  Clock, 
-  Building, 
-  Plus, 
-  Trash,
+import {
+  Store,
+  MapPin,
+  User,
+  Clock,
+  Building,
   Check,
-  X
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +23,13 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
 interface TimeSlot {
@@ -53,132 +59,167 @@ interface VendorFormProps {
   onCancel: () => void;
 }
 
-// Days of week for time slots
-const daysOfWeek = [
-  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-];
-
-// Available time slots
-const availableTimeSlots = [
-  "9:00 AM - 11:00 AM", "11:00 AM - 1:00 PM", "1:00 PM - 3:00 PM", "3:00 PM - 5:00 PM", "5:00 PM - 7:00 PM"
-];
-
-// Available vaults
-const availableVaults = [
-  "Brinks Dubai", "Singapore Vault", "London Gold", "Zurich Safe", "New York Vault"
-];
-
 export const VendorForm: React.FC<VendorFormProps> = ({
   vendor,
   onSave,
   onCancel
 }) => {
-  const isNewVendor = !vendor;
   const { toast } = useToast();
+  const isNewVendor = !vendor;
   
-  const [formData, setFormData] = useState({
-    id: vendor?.id || `VEN-${Math.floor(Math.random() * 10000)}`,
-    name: vendor?.name || "",
-    location: vendor?.location || "",
-    address: vendor?.address || "",
-    city: vendor?.city || "",
-    zip: vendor?.zip || "",
-    contactPerson: vendor?.contactPerson || "",
-    phone: vendor?.phone || "",
-    email: vendor?.email || "",
-    status: vendor?.status || "Active",
-    acceptingOrders: vendor?.acceptingOrders !== undefined ? vendor.acceptingOrders : true,
-    timeSlots: vendor?.timeSlots || daysOfWeek.map(day => ({ day, slots: [] })),
-    linkedVaults: vendor?.linkedVaults || [],
-    deliveryType: vendor?.deliveryType || "Only Pickup",
-    notes: vendor?.notes || "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData(prev => ({ ...prev, [name]: checked }));
-  };
-
-  const toggleTimeSlot = (day: string, slot: string) => {
-    setFormData(prev => {
-      const newTimeSlots = prev.timeSlots.map(daySlot => {
-        if (daySlot.day === day) {
-          const slots = daySlot.slots.includes(slot)
-            ? daySlot.slots.filter(s => s !== slot)
-            : [...daySlot.slots, slot];
-          return { ...daySlot, slots };
-        }
-        return daySlot;
-      });
-      return { ...prev, timeSlots: newTimeSlots };
-    });
-  };
-
+  // Form state
+  const [name, setName] = useState(vendor?.name || "");
+  const [location, setLocation] = useState(vendor?.location || "");
+  const [address, setAddress] = useState(vendor?.address || "");
+  const [city, setCity] = useState(vendor?.city || "");
+  const [zip, setZip] = useState(vendor?.zip || "");
+  const [contactPerson, setContactPerson] = useState(vendor?.contactPerson || "");
+  const [phone, setPhone] = useState(vendor?.phone || "");
+  const [email, setEmail] = useState(vendor?.email || "");
+  const [status, setStatus] = useState(vendor?.status || "Active");
+  const [acceptingOrders, setAcceptingOrders] = useState(vendor?.acceptingOrders ?? true);
+  const [deliveryType, setDeliveryType] = useState(vendor?.deliveryType || "Only Pickup");
+  const [notes, setNotes] = useState(vendor?.notes || "");
+  
+  // Available vaults
+  const availableVaults = ["Brinks Dubai", "Singapore Vault", "London Gold", "Zurich Safe"];
+  
+  // Selected vaults
+  const [selectedVaults, setSelectedVaults] = useState<string[]>(vendor?.linkedVaults || []);
+  
+  // Available time slots
+  const availableTimeSlots = [
+    "9:00 AM - 11:00 AM",
+    "11:00 AM - 1:00 PM",
+    "1:00 PM - 3:00 PM",
+    "3:00 PM - 5:00 PM",
+    "5:00 PM - 7:00 PM"
+  ];
+  
+  // Days of week
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  
+  // Initialize time slots
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
+    vendor?.timeSlots || 
+    daysOfWeek.map(day => ({ day, slots: day === "Sunday" ? [] : ["9:00 AM - 11:00 AM", "11:00 AM - 1:00 PM"] }))
+  );
+  
   const toggleVault = (vault: string) => {
-    setFormData(prev => {
-      const linkedVaults = prev.linkedVaults.includes(vault)
-        ? prev.linkedVaults.filter(v => v !== vault)
-        : [...prev.linkedVaults, vault];
-      return { ...prev, linkedVaults };
-    });
+    if (selectedVaults.includes(vault)) {
+      setSelectedVaults(selectedVaults.filter(v => v !== vault));
+    } else {
+      setSelectedVaults([...selectedVaults, vault]);
+    }
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  
+  const toggleTimeSlot = (day: string, slot: string) => {
+    const updatedTimeSlots = timeSlots.map(ts => {
+      if (ts.day === day) {
+        if (ts.slots.includes(slot)) {
+          return { ...ts, slots: ts.slots.filter(s => s !== slot) };
+        } else {
+          return { ...ts, slots: [...ts.slots, slot].sort((a, b) => {
+            // Sort by the start time
+            const timeA = a.split(" - ")[0];
+            const timeB = b.split(" - ")[0];
+            return timeA.localeCompare(timeB);
+          })};
+        }
+      }
+      return ts;
+    });
     
-    // Simple validation
-    if (!formData.name || !formData.email || !formData.phone) {
+    setTimeSlots(updatedTimeSlots);
+  };
+  
+  const handleSave = () => {
+    // Validation
+    if (!name || !location || !address || !city || !zip || !contactPerson || !phone || !email) {
       toast({
-        title: "Validation Error",
-        description: "Please fill out all required fields.",
+        title: "Missing Information",
+        description: "Please fill out all required fields",
         variant: "destructive"
       });
       return;
     }
     
-    // Submit form data
-    onSave(formData);
+    if (selectedVaults.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please select at least one linked vault",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create vendor object
+    const updatedVendor = {
+      id: vendor?.id || `VEN-${Math.floor(1000 + Math.random() * 9000)}`,
+      name,
+      location,
+      address,
+      city,
+      zip,
+      contactPerson,
+      phone,
+      email,
+      status,
+      acceptingOrders,
+      timeSlots,
+      linkedVaults: selectedVaults,
+      deliveryType,
+      notes: notes.trim() ? notes : undefined,
+      activeOrders: vendor?.activeOrders || 0
+    };
+    
+    onSave(updatedVendor);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 py-4">
-      {/* Basic Information */}
+    <div className="py-4 space-y-6">
+      {/* Basic Info */}
       <div>
-        <h3 className="text-lg font-medium flex items-center mb-4">
+        <h3 className="text-md font-medium flex items-center mb-3">
           <Store className="h-5 w-5 mr-2" />
           Basic Information
         </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Vendor Name *</Label>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="vendor-name">Vendor Name *</Label>
             <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
+              id="vendor-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Enter vendor name"
               required
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="E.g., Downtown, West Side"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="location">Location *</Label>
+              <Input
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., Downtown Dubai"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="delivery-type">Delivery Type</Label>
+              <Select value={deliveryType} onValueChange={setDeliveryType}>
+                <SelectTrigger id="delivery-type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Only Pickup">Only Pickup</SelectItem>
+                  <SelectItem value="Delivery Support">Delivery Support</SelectItem>
+                  <SelectItem value="Both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -187,45 +228,40 @@ export const VendorForm: React.FC<VendorFormProps> = ({
       
       {/* Address */}
       <div>
-        <h3 className="text-lg font-medium flex items-center mb-4">
+        <h3 className="text-md font-medium flex items-center mb-3">
           <MapPin className="h-5 w-5 mr-2" />
           Address
         </h3>
-        
         <div className="space-y-4">
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="address">Street Address *</Label>
             <Input
               id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter street address"
               required
             />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="city">City *</Label>
               <Input
                 id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 placeholder="Enter city"
                 required
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="zip">ZIP / Postal Code *</Label>
+            <div>
+              <Label htmlFor="zip">Postal Code / ZIP *</Label>
               <Input
                 id="zip"
-                name="zip"
-                value={formData.zip}
-                onChange={handleChange}
-                placeholder="Enter ZIP code"
+                value={zip}
+                onChange={(e) => setZip(e.target.value)}
+                placeholder="Enter postal code"
                 required
               />
             </div>
@@ -235,86 +271,46 @@ export const VendorForm: React.FC<VendorFormProps> = ({
       
       <Separator />
       
-      {/* Contact Information */}
+      {/* Contact Info */}
       <div>
-        <h3 className="text-lg font-medium flex items-center mb-4">
+        <h3 className="text-md font-medium flex items-center mb-3">
+          <User className="h-5 w-5 mr-2" />
           Contact Information
         </h3>
-        
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="contactPerson">Contact Person *</Label>
-              <Input
-                id="contactPerson"
-                name="contactPerson"
-                value={formData.contactPerson}
-                onChange={handleChange}
-                placeholder="Enter contact person name"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
+          <div>
+            <Label htmlFor="contact-person">Contact Person *</Label>
+            <Input
+              id="contact-person"
+              value={contactPerson}
+              onChange={(e) => setContactPerson(e.target.value)}
+              placeholder="Enter contact person name"
+              required
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="phone">Phone Number *</Label>
               <Input
                 id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter phone number"
                 required
               />
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter email address"
-              required
-            />
-          </div>
-        </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Time Slots */}
-      <div>
-        <h3 className="text-lg font-medium flex items-center mb-4">
-          <Clock className="h-5 w-5 mr-2" />
-          Available Time Slots
-        </h3>
-        
-        <div className="space-y-4">
-          {formData.timeSlots.map((daySlot, index) => (
-            <div key={index} className="space-y-2">
-              <Label>{daySlot.day}</Label>
-              <div className="flex flex-wrap gap-2">
-                {availableTimeSlots.map((slot) => {
-                  const isSelected = daySlot.slots.includes(slot);
-                  return (
-                    <Button
-                      key={slot}
-                      type="button"
-                      variant={isSelected ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleTimeSlot(daySlot.day, slot)}
-                    >
-                      {isSelected && <Check className="mr-1 h-3 w-3" />}
-                      {slot}
-                    </Button>
-                  );
-                })}
-              </div>
+            <div>
+              <Label htmlFor="email">Email Address *</Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email address"
+                required
+              />
             </div>
-          ))}
+          </div>
         </div>
       </div>
       
@@ -322,100 +318,137 @@ export const VendorForm: React.FC<VendorFormProps> = ({
       
       {/* Linked Vaults */}
       <div>
-        <h3 className="text-lg font-medium flex items-center mb-4">
+        <h3 className="text-md font-medium flex items-center mb-3">
           <Building className="h-5 w-5 mr-2" />
           Linked Vaults
         </h3>
-        
         <div className="space-y-4">
-          <Label>Select vaults this vendor is linked to</Label>
-          <div className="flex flex-wrap gap-2">
-            {availableVaults.map((vault) => {
-              const isLinked = formData.linkedVaults.includes(vault);
-              return (
-                <Button
-                  key={vault}
-                  type="button"
-                  variant={isLinked ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleVault(vault)}
-                >
-                  {isLinked && <Check className="mr-1 h-3 w-3" />}
-                  {vault}
-                </Button>
-              );
-            })}
+          <p className="text-sm text-muted-foreground">Select vaults that this vendor can pick up gold from:</p>
+          
+          <div className="grid grid-cols-2 gap-2">
+            {availableVaults.map((vault) => (
+              <div key={vault} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`vault-${vault}`} 
+                  checked={selectedVaults.includes(vault)}
+                  onCheckedChange={() => toggleVault(vault)}
+                />
+                <Label htmlFor={`vault-${vault}`}>{vault}</Label>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mt-2">
+            {selectedVaults.map((vault) => (
+              <Badge key={vault} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Building className="h-3 w-3 mr-1" />
+                {vault}
+              </Badge>
+            ))}
           </div>
         </div>
       </div>
       
       <Separator />
       
-      {/* Additional Settings */}
+      {/* Operating Hours */}
       <div>
-        <h3 className="text-lg font-medium mb-4">Additional Settings</h3>
-        
+        <h3 className="text-md font-medium flex items-center mb-3">
+          <Clock className="h-5 w-5 mr-2" />
+          Operating Hours
+        </h3>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="deliveryType">Delivery Type</Label>
-            <Select 
-              value={formData.deliveryType} 
-              onValueChange={(value) => handleSelectChange("deliveryType", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select delivery type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Only Pickup">Only Pickup</SelectItem>
-                <SelectItem value="Delivery Support">Delivery Support</SelectItem>
-                <SelectItem value="Both">Both</SelectItem>
-              </SelectContent>
-            </Select>
+          <p className="text-sm text-muted-foreground">Select available time slots for customer pickups:</p>
+          
+          <Accordion type="multiple" className="mt-2">
+            {daysOfWeek.map((day) => {
+              const dayData = timeSlots.find(ts => ts.day === day) || { day, slots: [] };
+              
+              return (
+                <AccordionItem key={day} value={day}>
+                  <AccordionTrigger className="py-2">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>{day}</span>
+                      {dayData.slots.length > 0 && (
+                        <Badge className="ml-2 bg-blue-50 text-blue-700">{dayData.slots.length} slots</Badge>
+                      )}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 gap-2 py-2">
+                      {availableTimeSlots.map((slot) => (
+                        <div key={slot} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`${day}-${slot}`} 
+                            checked={dayData.slots.includes(slot)}
+                            onCheckedChange={() => toggleTimeSlot(day, slot)}
+                          />
+                          <Label htmlFor={`${day}-${slot}`}>{slot}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </div>
+      </div>
+      
+      <Separator />
+      
+      {/* Vendor Settings */}
+      <div>
+        <h3 className="text-md font-medium flex items-center mb-3">
+          <Check className="h-5 w-5 mr-2" />
+          Vendor Settings
+        </h3>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="status">Vendor Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2 pt-7">
+              <Switch
+                id="accepting-orders"
+                checked={acceptingOrders}
+                onCheckedChange={setAcceptingOrders}
+              />
+              <Label htmlFor="accepting-orders">
+                Accept New Orders
+              </Label>
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select 
-              value={formData.status} 
-              onValueChange={(value) => handleSelectChange("status", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Suspended">Suspended</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="acceptingOrders"
-              checked={formData.acceptingOrders}
-              onCheckedChange={(checked) => handleSwitchChange("acceptingOrders", checked)}
-            />
-            <Label htmlFor="acceptingOrders">Accept new orders</Label>
-          </div>
-          
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="notes">Admin Notes</Label>
             <Textarea
               id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              placeholder="Add optional internal notes about this vendor"
-              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any internal notes about this vendor"
+              className="h-24"
             />
           </div>
         </div>
       </div>
       
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-        <Button type="submit">{isNewVendor ? "Add Vendor" : "Save Changes"}</Button>
+      <div className="flex justify-end space-x-2 pt-4">
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button onClick={handleSave}>
+          {isNewVendor ? "Add Vendor" : "Save Changes"}
+        </Button>
       </div>
-    </form>
+    </div>
   );
 };

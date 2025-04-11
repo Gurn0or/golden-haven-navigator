@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -21,7 +20,8 @@ import {
   Database,
   DollarSign,
   Users,
-  FileText
+  FileText,
+  MoreVertical
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";

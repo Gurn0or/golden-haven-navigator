@@ -134,19 +134,19 @@ const Dashboard = () => {
         </Card>
         
         {/* Redemption Distribution Chart - 4 columns */}
-        <Card className="lg:col-span-4">
+        <Card className="lg:col-span-4 flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle>Redemption Distribution</CardTitle>
             <CardDescription>Physical vs Vault Storage</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 h-[300px]">
+          <CardContent className="p-0 h-[300px] flex-grow flex items-center justify-center">
             <PieChart 
               data={chartData.redemption}
               index="name"
               category="value"
               valueFormatter={(value) => `${value}%`}
               colors={["#E5C07B", "#221F26"]}
-              className="h-full"
+              className="h-full w-full max-w-[250px]"
             />
           </CardContent>
         </Card>
@@ -217,3 +217,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

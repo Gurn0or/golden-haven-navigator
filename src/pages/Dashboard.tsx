@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, PieChart, AreaChart } from '@/components/ui/charts';
+import { BarChart, LineChart, PieChart } from '@/components/ui/charts';
 import { Users, Wallet, Coins, Building, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 // Sample KPI data
 const kpiData = [
@@ -81,130 +79,137 @@ const chartData = {
 
 const Dashboard = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-charcoal">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, manage your gold-backed token ecosystem.</p>
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-muted-foreground text-lg">Welcome back, manage your gold-backed token ecosystem.</p>
       </div>
       
       {/* KPI Cards - 5 equal-width cards in a row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
         {kpiData.map((kpi, index) => (
-          <Card key={index} className="stats-card">
-            <CardContent className="p-6 flex justify-between items-start">
-              <div>
-                <p className="text-muted-foreground text-sm mb-1">{kpi.title}</p>
-                <p className="text-2xl font-bold">{kpi.value}</p>
-                <div className="flex items-center mt-2">
+          <Card key={index} className="border rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 rounded-lg bg-gray-50">
+                  <kpi.icon className="h-5 w-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold tracking-tight">{kpi.value}</h2>
+                <div className="flex items-center">
                   {kpi.trend === "up" ? 
-                    <ArrowUp className="h-4 w-4 text-green-500" /> : 
-                    <ArrowDown className="h-4 w-4 text-red-500" />
+                    <ArrowUp className="h-4 w-4 text-green-500 mr-1" /> : 
+                    <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
                   }
-                  <span className={`text-sm ml-1 ${kpi.trend === "up" ? "text-green-500" : "text-red-500"}`}>
+                  <span className={`text-sm font-medium ${kpi.trend === "up" ? "text-green-500" : "text-red-500"}`}>
                     {kpi.change}
                   </span>
                 </div>
-              </div>
-              <div className="bg-gold/10 p-3 rounded-full">
-                <kpi.icon className="h-6 w-6 text-gold" />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
       
-      {/* First row of charts - 8/4 column split */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-        {/* Transaction Volume Chart - 8 columns */}
-        <Card className="lg:col-span-8">
-          <CardHeader className="pb-2">
+      {/* Charts Row 1 - Transaction Volume and Redemption Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <Card className="lg:col-span-8 shadow-sm">
+          <CardHeader>
             <CardTitle>Transaction Volume</CardTitle>
             <CardDescription>Daily buy/sell transactions over the past week</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 h-[300px]">
-            <BarChart 
-              data={chartData.daily}
-              index="name"
-              categories={["buy", "sell"]}
-              colors={["#E5C07B", "#221F26"]}
-              valueFormatter={(value) => `${value} AUR`}
-              className="h-full"
-            />
+          <CardContent className="pt-4">
+            <div className="h-[350px]">
+              <BarChart 
+                data={chartData.daily}
+                index="name"
+                categories={["buy", "sell"]}
+                colors={["#E5C07B", "#221F26"]}
+                valueFormatter={(value) => `${value} AUR`}
+                className="h-full"
+              />
+            </div>
           </CardContent>
         </Card>
         
-        {/* Redemption Distribution Chart - 4 columns */}
-        <Card className="lg:col-span-4 flex flex-col">
-          <CardHeader className="pb-2">
+        <Card className="lg:col-span-4 shadow-sm flex flex-col">
+          <CardHeader>
             <CardTitle>Redemption Distribution</CardTitle>
             <CardDescription>Physical vs Vault Storage</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 h-[300px] flex-grow flex items-center justify-center">
-            <PieChart 
-              data={chartData.redemption}
-              index="name"
-              category="value"
-              valueFormatter={(value) => `${value}%`}
-              colors={["#E5C07B", "#221F26"]}
-              className="h-full w-full max-w-[250px]"
-            />
+          <CardContent className="flex-1 flex items-center justify-center">
+            <div className="w-full max-w-[280px] aspect-square">
+              <PieChart 
+                data={chartData.redemption}
+                index="name"
+                category="value"
+                valueFormatter={(value) => `${value}%`}
+                colors={["#E5C07B", "#221F26"]}
+                className="h-full w-full"
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
       
-      {/* Second row of charts - 6/6 column split */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-        {/* Mint vs Burn Trend Chart - 6 columns */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-2">
+      {/* Charts Row 2 - Mint vs Burn and Recent Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <Card className="lg:col-span-6 shadow-sm">
+          <CardHeader>
             <CardTitle>Mint vs Burn Trend</CardTitle>
             <CardDescription>Monitor token supply changes</CardDescription>
           </CardHeader>
-          <CardContent className="p-0 h-[300px]">
-            <LineChart 
-              data={chartData.mintBurn}
-              index="name"
-              categories={["mint", "burn"]}
-              colors={["#E5C07B", "#221F26"]}
-              valueFormatter={(value) => `${value}k AUR`}
-              className="h-full"
-            />
+          <CardContent className="pt-4">
+            <div className="h-[350px]">
+              <LineChart 
+                data={chartData.mintBurn}
+                index="name"
+                categories={["mint", "burn"]}
+                colors={["#E5C07B", "#221F26"]}
+                valueFormatter={(value) => `${value}k AUR`}
+                className="h-full"
+              />
+            </div>
           </CardContent>
         </Card>
         
-        {/* Recent Transactions - 6 columns */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-2">
+        <Card className="lg:col-span-6 shadow-sm">
+          <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Latest activity across the platform</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] overflow-y-auto">
-            <div className="space-y-2">
+          <CardContent>
+            <div className="space-y-4 max-h-[350px] overflow-y-auto">
               {recentTransactions.map((tx) => (
-                <div key={tx.id} className="flex items-center p-3 rounded-md hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-sm">{tx.id}</span>
-                      <Badge 
-                        variant={tx.status === 'completed' ? "default" : "outline"}
-                        className={tx.status === 'completed' ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-amber-100 text-amber-800 hover:bg-amber-100"}
-                      >
+                <div key={tx.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{tx.id}</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        tx.status === 'completed' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
                         {tx.status}
-                      </Badge>
+                      </span>
                     </div>
-                    <div className="text-muted-foreground text-sm">{tx.user}</div>
+                    <p className="text-sm text-muted-foreground">{tx.user}</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">
-                      {tx.type === 'Sell' ? (
-                        <span className="text-red-500">-{tx.amount}</span>
-                      ) : tx.type === 'Buy' ? (
-                        <span className="text-green-500">+{tx.amount}</span>
-                      ) : (
-                        <span>{tx.amount}</span>
-                      )}
-                    </div>
-                    <div className="text-muted-foreground text-sm">{tx.time}</div>
+                    <p className={`font-medium ${
+                      tx.type === 'Sell' 
+                        ? 'text-red-600' 
+                        : tx.type === 'Buy' 
+                          ? 'text-green-600' 
+                          : 'text-gray-900'
+                    }`}>
+                      {tx.type === 'Sell' ? '-' : tx.type === 'Buy' ? '+' : ''}{tx.amount}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{tx.time}</p>
                   </div>
                 </div>
               ))}
@@ -217,4 +222,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

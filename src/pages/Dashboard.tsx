@@ -81,7 +81,7 @@ const chartData = {
 
 const Dashboard = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-charcoal">Dashboard</h1>
         <p className="text-muted-foreground">Welcome back, manage your gold-backed token ecosystem.</p>
@@ -121,14 +121,14 @@ const Dashboard = () => {
             <CardTitle>Transaction Volume</CardTitle>
             <CardDescription>Daily buy/sell transactions over the past week</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 h-[300px]">
             <BarChart 
               data={chartData.daily}
               index="name"
               categories={["buy", "sell"]}
               colors={["#E5C07B", "#221F26"]}
               valueFormatter={(value) => `${value} AUR`}
-              className="h-[320px]"
+              className="h-full"
             />
           </CardContent>
         </Card>
@@ -139,14 +139,14 @@ const Dashboard = () => {
             <CardTitle>Redemption Distribution</CardTitle>
             <CardDescription>Physical vs Vault Storage</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 h-[300px]">
             <PieChart 
               data={chartData.redemption}
               index="name"
               category="value"
               valueFormatter={(value) => `${value}%`}
               colors={["#E5C07B", "#221F26"]}
-              className="h-[320px]"
+              className="h-full"
             />
           </CardContent>
         </Card>
@@ -160,14 +160,14 @@ const Dashboard = () => {
             <CardTitle>Mint vs Burn Trend</CardTitle>
             <CardDescription>Monitor token supply changes</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 h-[300px]">
             <LineChart 
               data={chartData.mintBurn}
               index="name"
               categories={["mint", "burn"]}
               colors={["#E5C07B", "#221F26"]}
               valueFormatter={(value) => `${value}k AUR`}
-              className="h-[320px]"
+              className="h-full"
             />
           </CardContent>
         </Card>
@@ -178,7 +178,7 @@ const Dashboard = () => {
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Latest activity across the platform</CardDescription>
           </CardHeader>
-          <CardContent className="h-[320px] overflow-y-auto">
+          <CardContent className="h-[300px] overflow-y-auto">
             <div className="space-y-2">
               {recentTransactions.map((tx) => (
                 <div key={tx.id} className="flex items-center p-3 rounded-md hover:bg-muted/50 transition-colors">

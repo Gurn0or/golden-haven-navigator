@@ -54,6 +54,7 @@ interface VendorFormProps {
     linkedVaults: string[];
     deliveryType: string;
     notes?: string;
+    activeOrders?: number; // Added activeOrders as an optional property
   };
   onSave: (vendor: any) => void;
   onCancel: () => void;
